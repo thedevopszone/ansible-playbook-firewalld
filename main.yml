@@ -1,0 +1,64 @@
+
+--- # Deploy devops node
+- hosts: all
+  remote_user: root
+#  become: yes
+#  become_method: sudo
+  connection: ssh
+  gather_facts: yes
+  vars:
+    firewalld_enable_immediately: true
+    firewalld_rules:
+      - service: 'http'
+        state: 'enabled'
+        permanent: true
+        zone: 'public'
+      - service: 'https'
+        state: 'enabled'
+        permanent: true
+        zone: 'public'
+      - service: 'ssh'
+        state: 'enabled'
+        permanent: true
+      - service: 'grafana'
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+      - service: 'prometheus'
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+      - service: 'prometheus-node-exporter'
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+      - port: 9093/tcp
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+      - port: 9115/tcp
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+      - service: 'foreman'
+        state: 'enabled'
+        zone: 'public'
+        permanent: true
+
+
+    firewalld_zones:
+      - zone: 'public'
+        permanent: true
+        state: 'enabled'
+        interface: 'ens18'
+
+  tasks:
+  - name: Always reload firewalld
+    ansible.builtin.service:
+      name: firewalld
+      state: reloaded
+
+  roles:
+    - ../../Ansible-Roles/ansible-firewalld/
+    
+
